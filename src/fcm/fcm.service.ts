@@ -3,6 +3,8 @@ import * as admin from 'firebase-admin';
 
 @Injectable()
 export class FcmService {
+  private messaging: admin.messaging.Messaging;
+
   constructor() {
     const env = process.env.NODE_ENV || 'development';
     const keyFilePath =
@@ -21,6 +23,8 @@ export class FcmService {
     admin.initializeApp({
       credential: admin.credential.applicationDefault(),
     });
+
+    this.messaging = admin.messaging(); // Use the initialized Firebase app
   }
 
   sendTestNotification() {
@@ -45,6 +49,35 @@ export class FcmService {
       return { success: true, response };
     } catch (error) {
       return { success: false, error: error.message };
+    }
+  }
+
+  async subscribeToTopic(tokens: string[], topic: string): Promise<void> {
+    try {
+      await this.messaging.subscribeToTopic(tokens, topic);
+      console.log(`Successfully subscribed to topic: ${topic}`);
+    } catch (error) {
+      console.error('Error subscribing to topic:', error);
+      throw error;
+    }
+  }
+
+  async unsubscribeFromTopic(tokens: string[], topic: string): Promise<void> {
+    try {
+      await this.messaging.unsubscribeFromTopic(tokens, topic);
+      console.log(`Successfully unsubscribed from topic: ${topic}`);
+    } catch (error) {
+      console.error('Error unsubscribing from topic:', error);
+      throw error;
+    }
+  }
+
+  async sendMessage(message: admin.messaging.Message): Promise<void> {
+    try {
+      await this.messaging.send(message);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      throw error;
     }
   }
 }
