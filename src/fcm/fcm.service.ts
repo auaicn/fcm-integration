@@ -6,9 +6,9 @@ export class FcmService {
   private messaging: admin.messaging.Messaging;
 
   constructor() {
-    const env = process.env.NODE_ENV || 'development';
+    const env = process.env.NODE_ENV || 'dev';
     const keyFilePath =
-      env === 'development'
+      env === 'dev'
         ? process.env.DEVELOPMENT_ENVIRONMENT_SERVICE_ACCOUNT_KEY_FILE_PATH
         : process.env.OPERATION_ENVIRONMENT_SERVICE_ACCOUNT_KEY_FILE_PATH;
 
