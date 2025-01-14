@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable } from '@nestjs/common';
 import * as admin from 'firebase-admin';
 import * as _ from 'lodash';
@@ -32,54 +33,88 @@ export class FcmService {
     return { success: true, message: 'Test notification sent!' };
   }
 
+  EXAMPLE_IMAGE_URL_JPG =
+    'https://vetching-public-storage-dev.s3.ap-northeast-2.amazonaws.com/test/Object_Speaker.jpg';
+  EXAMPLE_IMAGE_URL_PNG =
+    'https://vetching-public-storage-dev.s3.ap-northeast-2.amazonaws.com/test/Object_Camera.png';
+  EXAMPLE_IMAGE_URL_PIC_SUM =
+    'https://fastly.picsum.photos/id/1075/200/300.jpg?hmac=pffU5_mFDClpUhsTVng81yHXXvdsGGKHi1jCz2pRsaU';
+
   async sendMessage({
     token,
+    serverMessageId,
     notification_title = 'notification_title',
     notification_content = 'notification_content',
     data,
   }: {
     token: string;
+    serverMessageId: string;
     notification_title?: string;
     notification_content?: string;
     data: {
       [key: string]: string;
     };
   }): Promise<any> {
-    const defaultMessage: Omit<
-      admin.messaging.Message,
-      'condition' | 'topic' | 'token'
-    > = {
+    const _common: Partial<admin.messaging.Message> = {
       android: {
         priority: 'high',
         ttl: 0,
         restrictedPackageName:
           process.env.NODE_ENV === 'dev'
-            ? 'com.vetfching.plusvetm.development'
-            : 'com.vetfching.plusvetm',
+            ? 'com.vetching.plusvetm.development'
+            : 'com.vetching.plusvetm',
         directBootOk: true,
         notification: {
-          tag: 'message-id',
           clickAction: 'chatroom-open',
           channelId: 'chat',
           eventTimestamp: new Date(),
         },
       },
-      apns: {},
+      // apns: {
+      // headers: {},
+      // payload: {},
+      // },
     };
 
-    const message: admin.messaging.Message = _.merge(defaultMessage, {
+    const tag: Partial<admin.messaging.Message> | undefined = !serverMessageId
+      ? undefined
+      : {
+          android: {
+            notification: {
+              tag: serverMessageId,
+            },
+          },
+          apns: {
+            headers: {
+              'apns-collapse-id': serverMessageId,
+            },
+            payload: {
+              aps: {},
+            },
+          },
+        };
+
+    const message: admin.messaging.Message = {
       token,
       data,
       notification: {
-        title: notification_title,
-        body: notification_content,
-        imageUrl:
-          'https://vetching-public-storage-dev.s3.ap-northeast-2.amazonaws.com/test/Object_Speaker.jpg',
+        title: 'auaicn-title-2',
+        body: 'auaicn-body-2',
+        // image: EXAMPLE_IMAGE_URL_PIC_SUM,
       },
-    });
+    };
+
+    console.log(_.merge(_common, tag, message));
 
     try {
-      const response = await admin.messaging().send(message);
+      const response = await admin.messaging().send(
+        _.merge(
+          //
+          _common,
+          tag,
+          message,
+        ),
+      );
       return { success: true, response };
     } catch (error) {
       return { success: false, error: error.message };
