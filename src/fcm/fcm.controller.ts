@@ -2,6 +2,7 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { FcmService } from './fcm.service';
 import * as admin from 'firebase-admin';
+import { randomInt } from 'node:crypto';
 
 @Controller('fcm')
 export class FcmController {
@@ -27,41 +28,40 @@ export class FcmController {
     return { message: `Unsubscribed from topic ${topic}` };
   }
 
-  generateMessageTitle = () => {
-    const now = new Date();
-    const hours = now.getHours();
+  getRandomInt(max) {
+    return Math.floor(Math.random() * max);
+  }
 
-    if (hours >= 5 && hours < 12) {
-      return "Good Morning! Here's your update 🌅";
-    } else if (hours >= 12 && hours < 18) {
-      return 'Good Afternoon! New updates for you ☀️';
-    } else if (hours >= 18 && hours < 22) {
-      return "Good Evening! Here's what's new 🌆";
-    } else {
-      return 'Late Night Update 🌙';
+  generateRandomString(length: number): string {
+    const chars =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-  };
+    return result;
+  }
 
   @Get('send-to-device')
   async sendToDevice(@Query('token') token: string) {
-    const EXAMPLE_CONTENT_SHORT =
-      'Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...';
+    const EXAMPLE_TITLE = this.generateRandomString(10);
 
-    const EXAMPLE_CONTENT_LONG = `Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.`;
+    const EXAMPLE_CONTENT_S = this.generateRandomString(10);
+    const EXAMPLE_CONTENT_M = this.generateRandomString(2000);
+    const EXAMPLE_CONTENT_L = this.generateRandomString(8000);
+
+    const EXAMPLE_MESSAGE_ID = randomInt(1987654321).toString();
 
     const EXAMPLE_DATA = {
       hospitalId: '22',
       chatRoomId: '19299',
-      messageId: '100020',
     };
-
-    const EXAMPLE_TITLE = this.generateMessageTitle();
 
     await this.fcmService.sendMessage({
       token,
       notification_title: EXAMPLE_TITLE,
-      notification_content: EXAMPLE_CONTENT_LONG,
-      serverMessageId: 'auaicn',
+      notification_content: EXAMPLE_CONTENT_M,
+      serverMessageId: EXAMPLE_MESSAGE_ID.toString(),
       data: EXAMPLE_DATA,
     });
 

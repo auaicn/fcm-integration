@@ -45,12 +45,14 @@ export class FcmService {
     serverMessageId,
     notification_title = 'notification_title',
     notification_content = 'notification_content',
+    notification_imageUrl = this.EXAMPLE_IMAGE_URL_PIC_SUM,
     data,
   }: {
     token: string;
     serverMessageId: string;
     notification_title?: string;
     notification_content?: string;
+    notification_imageUrl?: string;
     data: {
       [key: string]: string;
     };
@@ -70,13 +72,34 @@ export class FcmService {
           eventTimestamp: new Date(),
         },
       },
-      // apns: {
-      // headers: {},
-      // payload: {},
-      // },
+      apns: {
+        headers: {
+          'apns-priroty': '10',
+          'mutable-content': '1',
+        },
+      },
     };
 
-    const tag: Partial<admin.messaging.Message> | undefined = !serverMessageId
+    const _img: Partial<admin.messaging.Message> | undefined =
+      !notification_imageUrl
+        ? undefined
+        : {
+            android: {
+              notification: {
+                imageUrl: notification_imageUrl,
+              },
+            },
+            apns: {
+              payload: {
+                aps: {},
+              },
+              fcmOptions: {
+                imageUrl: notification_imageUrl,
+              },
+            },
+          };
+
+    const _tag: Partial<admin.messaging.Message> | undefined = !serverMessageId
       ? undefined
       : {
           android: {
@@ -94,27 +117,27 @@ export class FcmService {
           },
         };
 
-    const message: admin.messaging.Message = {
+    const _mutable: admin.messaging.Message = {
       token,
       data,
       notification: {
-        title: 'auaicn-title-2',
-        body: 'auaicn-body-2',
-        // image: EXAMPLE_IMAGE_URL_PIC_SUM,
+        title: notification_title,
+        body: notification_content,
       },
     };
 
-    console.log(_.merge(_common, tag, message));
+    const message = _.merge(
+      //
+      _common,
+      _img,
+      _tag,
+      _mutable,
+    );
+
+    console.log(message);
 
     try {
-      const response = await admin.messaging().send(
-        _.merge(
-          //
-          _common,
-          tag,
-          message,
-        ),
-      );
+      const response = await admin.messaging().send(message);
       return { success: true, response };
     } catch (error) {
       return { success: false, error: error.message };
