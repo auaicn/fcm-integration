@@ -7,7 +7,7 @@ export class MessageBuilder {
   private message: Partial<admin.messaging.Message> = {};
 
   constructor() {
-    this.setCommonFields();
+    this.init();
   }
 
   setToken(token: string): this {
@@ -28,8 +28,8 @@ export class MessageBuilder {
     return this;
   }
 
-  private setCommonFields(): this {
-    const common = {
+  private init(): this {
+    const fields$common: Partial<admin.messaging.Message> = {
       android: {
         priority: 'high',
         ttl: 0,
@@ -51,30 +51,30 @@ export class MessageBuilder {
       },
     };
 
-    this.message = _.merge(this.message, common);
-
+    this.message = _.merge(this.message, fields$common);
     return this;
   }
 
   setImage(imageUrl?: string): this {
     if (!imageUrl) return this;
 
-    this.message = _.merge(this.message, {
+    const fields: Partial<admin.messaging.Message> = {
       notification: { imageUrl },
       apns: {
         headers: {
           'mutable-content': '1',
         },
       },
-    });
+    };
 
+    this.message = _.merge(this.message, fields);
     return this;
   }
 
   setUid(uid?: string): this {
     if (!uid) return this;
 
-    this.message = _.merge(this.message, {
+    const fields: Partial<admin.messaging.Message> = {
       android: {
         notification: {
           tag: uid,
@@ -85,29 +85,34 @@ export class MessageBuilder {
           'apns-collapse-id': uid,
         },
       },
-    });
+    };
 
+    this.message = _.merge(this.message, fields);
     return this;
   }
 
   setData(data?: { [key: string]: string }): this {
     if (!data) return this;
 
-    this.message = _.merge(this.message, { data });
+    const fields: Partial<admin.messaging.Message> = {
+      data,
+    };
 
+    this.message = _.merge(this.message, fields);
     return this;
   }
 
   setNotification(notification?: { title?: string; body?: string }): this {
     if (!notification) return this;
 
-    this.message = _.merge(this.message, {
+    const fields: Partial<admin.messaging.Message> = {
       notification: {
         title: notification.title,
         body: notification.body,
       },
-    });
+    };
 
+    this.message = _.merge(this.message, fields);
     return this;
   }
 
