@@ -2,12 +2,13 @@
 import { Injectable } from '@nestjs/common';
 import * as admin from 'firebase-admin';
 import * as _ from 'lodash';
+import { MessageBuilder } from './message.builder';
 
 @Injectable()
 export class FcmService {
   private messaging: admin.messaging.Messaging;
 
-  constructor() {
+  constructor(private readonly messageBuilder: MessageBuilder) {
     const env = process.env.NODE_ENV || 'dev';
     const keyFilePath =
       env === 'dev'
@@ -57,84 +58,14 @@ export class FcmService {
       [key: string]: string;
     };
   }): Promise<any> {
-    const _common: Partial<admin.messaging.Message> = {
-      android: {
-        priority: 'high',
-        ttl: 0,
-        restrictedPackageName:
-          process.env.NODE_ENV === 'dev'
-            ? 'com.vetching.plusvetm.development'
-            : 'com.vetching.plusvetm',
-        directBootOk: true,
-        notification: {
-          clickAction: 'chatroom-open',
-          channelId: 'chat',
-          eventTimestamp: new Date(),
-        },
-      },
-      apns: {
-        headers: {
-          'apns-priroty': '10',
-        },
-      },
-    };
+    const builder = this.messageBuilder
+      .setToken(token)
+      .setData(data)
+      .setNotification(notification)
+      .setAndroidOptions(uid)
+      .setApnsOptions(uid, notification?.imageUrl);
 
-    const _img: Partial<admin.messaging.Message> | undefined =
-      !notification.imageUrl
-        ? undefined
-        : {
-            notification: {
-              imageUrl: notification.imageUrl,
-            },
-            // android: {
-            //   notification: {
-            //     imageUrl: notification.imageUrl,
-            //   },
-            // },
-            apns: {
-              headers: {
-                'mutable-content': '1',
-              },
-              // fcmOptions: {
-              //   imageUrl: notification.imageUrl,
-              // },
-            },
-          };
-
-    const _uid: Partial<admin.messaging.Message> | undefined = !uid
-      ? undefined
-      : {
-          android: {
-            notification: {
-              tag: uid,
-            },
-          },
-          apns: {
-            headers: {
-              'apns-collapse-id': uid,
-            },
-            payload: {
-              aps: {},
-            },
-          },
-        };
-
-    const _mutable: admin.messaging.Message = {
-      token,
-      data,
-      notification: {
-        title: notification.title,
-        body: notification.body,
-      },
-    };
-
-    const message = _.merge(
-      //
-      _common,
-      _img,
-      _uid,
-      _mutable,
-    );
+    const message = builder.build();
 
     try {
       const response = await admin.messaging().send(message);

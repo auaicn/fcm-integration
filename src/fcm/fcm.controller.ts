@@ -59,9 +59,11 @@ export class FcmController {
 
     await this.fcmService.sendMessage({
       token,
-      notification_title: EXAMPLE_TITLE,
-      notification_content: EXAMPLE_CONTENT_M,
-      serverMessageId: EXAMPLE_MESSAGE_ID.toString(),
+      uid: EXAMPLE_MESSAGE_ID.toString(),
+      notification: {
+        title: EXAMPLE_TITLE,
+        body: EXAMPLE_CONTENT_M,
+      },
       data: EXAMPLE_DATA,
     });
 
