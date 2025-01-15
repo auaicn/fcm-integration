@@ -7,43 +7,13 @@ import {
   SendMessageConditionDto,
   SendMessageTokenDto,
   SendMessageTopicDto,
-} from 'src/fcm..dto';
-
-const EXAMPLE_IMAGE_URL_JPG =
-  'https://vetching-public-storage-dev.s3.ap-northeast-2.amazonaws.com/test/Object_Speaker.jpg';
-const EXAMPLE_IMAGE_URL_PNG =
-  'https://vetching-public-storage-dev.s3.ap-northeast-2.amazonaws.com/test/Object_Camera.png';
-const EXAMPLE_IMAGE_URL_PIC_SUM =
-  'https://fastly.picsum.photos/id/1075/200/300.jpg?hmac=pffU5_mFDClpUhsTVng81yHXXvdsGGKHi1jCz2pRsaU';
+} from 'src/fcm.dto';
 
 @Injectable()
 export class FcmService {
   private messaging: admin.messaging.Messaging;
 
   constructor() {
-    /* -------------------------------------------------------------------------- */
-    /*                            firebase - admin sdk                            */
-    /* -------------------------------------------------------------------------- */
-    const env = process.env.NODE_ENV || 'dev';
-    const keyFilePath =
-      env === 'dev'
-        ? process.env.DEVELOPMENT_ENVIRONMENT_SERVICE_ACCOUNT_KEY_FILE_PATH
-        : process.env.OPERATION_ENVIRONMENT_SERVICE_ACCOUNT_KEY_FILE_PATH;
-
-    if (!keyFilePath) {
-      throw new Error('Service account key file path is not defined');
-    }
-
-    process.env.GOOGLE_APPLICATION_CREDENTIALS = keyFilePath;
-
-    admin.initializeApp({
-      credential: admin.credential.applicationDefault(),
-    });
-
-    /* -------------------------------------------------------------------------- */
-    /*                            firebase - messaging                            */
-    /* -------------------------------------------------------------------------- */
-
     this.messaging = admin.messaging();
   }
 
@@ -87,6 +57,26 @@ export class FcmService {
       return { success: true, response };
     } catch (error) {
       return { success: false, error: error.message };
+    }
+  }
+
+  async subscribeToTopic(tokens: string[], topic: string): Promise<void> {
+    try {
+      await this.messaging.subscribeToTopic(tokens, topic);
+      console.log(`Successfully subscribed to topic: ${topic}`);
+    } catch (error) {
+      console.error('Error subscribing to topic:', error);
+      throw error;
+    }
+  }
+
+  async unsubscribeFromTopic(tokens: string[], topic: string): Promise<void> {
+    try {
+      await this.messaging.unsubscribeFromTopic(tokens, topic);
+      console.log(`Successfully unsubscribed from topic: ${topic}`);
+    } catch (error) {
+      console.error('Error unsubscribing from topic:', error);
+      throw error;
     }
   }
 }

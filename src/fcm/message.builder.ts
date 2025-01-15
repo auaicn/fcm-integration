@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import * as _ from 'lodash';
 import { Injectable } from '@nestjs/common';
 import * as admin from 'firebase-admin';
 
@@ -39,7 +39,7 @@ export class MessageBuilder {
             : 'com.vetching.plusvetm',
         directBootOk: true,
         notification: {
-          clickAction: 'chatroom-open',
+          clickAction: 'chatroom-open', // 필요한지 조금 더 보긴 해야겠다.
           channelId: 'chat',
           eventTimestamp: new Date(),
         },
