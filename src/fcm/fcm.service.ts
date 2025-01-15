@@ -27,32 +27,21 @@ export class FcmService {
       const messageBuilder: MessageBuilder = new MessageBuilder();
 
       if ('token' in messageDto) {
-        messageBuilder
-          .setToken(messageDto.token)
-          .setData(messageDto.data)
-          .setNotification(messageDto.notification)
-          .setUid(messageDto.uid)
-          .setSound(true)
-          .setImage(messageDto.notification.imageUrl);
+        messageBuilder.setToken(messageDto.token);
       } else if ('topic' in messageDto) {
-        messageBuilder
-          .setTopic(messageDto.topic)
-          .setData(messageDto.data)
-          .setNotification(messageDto.notification)
-          .setUid(messageDto.uid)
-          .setSound(true)
-          .setImage(messageDto.notification.imageUrl);
+        messageBuilder.setTopic(messageDto.topic);
       } else if ('condition' in messageDto) {
-        messageBuilder
-          .setCondition(messageDto.condition)
-          .setData(messageDto.data)
-          .setNotification(messageDto.notification)
-          .setUid(messageDto.uid)
-          .setSound(true)
-          .setImage(messageDto.notification.imageUrl);
+        messageBuilder.setCondition(messageDto.condition);
       } else {
         throw 'unknown message type';
       }
+
+      messageBuilder
+        .setData(messageDto.data)
+        .setNotification(messageDto.notification)
+        .setUid(messageDto.uid)
+        .setSound(true)
+        .setImage(messageDto.notification.imageUrl);
 
       const message = messageBuilder.build();
 
