@@ -10,6 +10,10 @@ export class MessageBuilder {
     this.init();
   }
 
+  build(): admin.messaging.Message {
+    return this.message as admin.messaging.Message;
+  }
+
   setToken(token: string): this {
     _.merge(this.message, { token });
 
@@ -116,7 +120,25 @@ export class MessageBuilder {
     return this;
   }
 
-  build(): admin.messaging.Message {
-    return this.message as admin.messaging.Message;
+  setSound(useSound: boolean = false): this {
+    if (!useSound) return this;
+
+    const fields: Partial<admin.messaging.Message> = {
+      apns: {
+        payload: {
+          aps: {
+            sound: 'default',
+          },
+        },
+      },
+      android: {
+        notification: {
+          sound: 'default',
+        },
+      },
+    };
+
+    this.message = _.merge(this.message, fields);
+    return this;
   }
 }

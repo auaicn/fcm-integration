@@ -32,6 +32,7 @@ export class FcmService {
           .setData(messageDto.data)
           .setNotification(messageDto.notification)
           .setUid(messageDto.uid)
+          .setSound(true)
           .setImage(messageDto.notification.imageUrl);
       } else if ('topic' in messageDto) {
         messageBuilder
@@ -39,6 +40,7 @@ export class FcmService {
           .setData(messageDto.data)
           .setNotification(messageDto.notification)
           .setUid(messageDto.uid)
+          .setSound(true)
           .setImage(messageDto.notification.imageUrl);
       } else if ('condition' in messageDto) {
         messageBuilder
@@ -46,6 +48,7 @@ export class FcmService {
           .setData(messageDto.data)
           .setNotification(messageDto.notification)
           .setUid(messageDto.uid)
+          .setSound(true)
           .setImage(messageDto.notification.imageUrl);
       } else {
         throw 'unknown message type';
