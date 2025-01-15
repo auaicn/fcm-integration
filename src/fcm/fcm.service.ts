@@ -42,18 +42,18 @@ export class FcmService {
 
   async sendMessage({
     token,
-    serverMessageId,
-    notification_title = 'notification_title',
-    notification_content = 'notification_content',
-    notification_imageUrl = this.EXAMPLE_IMAGE_URL_PIC_SUM,
+    uid,
+    notification,
     data,
   }: {
     token: string;
-    serverMessageId: string;
-    notification_title?: string;
-    notification_content?: string;
-    notification_imageUrl?: string;
-    data: {
+    uid: string;
+    notification?: {
+      title?: string;
+      body?: string;
+      imageUrl?: string;
+    };
+    data?: {
       [key: string]: string;
     };
   }): Promise<any> {
@@ -75,41 +75,43 @@ export class FcmService {
       apns: {
         headers: {
           'apns-priroty': '10',
-          'mutable-content': '1',
         },
       },
     };
 
     const _img: Partial<admin.messaging.Message> | undefined =
-      !notification_imageUrl
+      !notification.imageUrl
         ? undefined
         : {
-            android: {
-              notification: {
-                imageUrl: notification_imageUrl,
-              },
+            notification: {
+              imageUrl: notification.imageUrl,
             },
+            // android: {
+            //   notification: {
+            //     imageUrl: notification.imageUrl,
+            //   },
+            // },
             apns: {
-              payload: {
-                aps: {},
+              headers: {
+                'mutable-content': '1',
               },
-              fcmOptions: {
-                imageUrl: notification_imageUrl,
-              },
+              // fcmOptions: {
+              //   imageUrl: notification.imageUrl,
+              // },
             },
           };
 
-    const _tag: Partial<admin.messaging.Message> | undefined = !serverMessageId
+    const _uid: Partial<admin.messaging.Message> | undefined = !uid
       ? undefined
       : {
           android: {
             notification: {
-              tag: serverMessageId,
+              tag: uid,
             },
           },
           apns: {
             headers: {
-              'apns-collapse-id': serverMessageId,
+              'apns-collapse-id': uid,
             },
             payload: {
               aps: {},
@@ -121,8 +123,8 @@ export class FcmService {
       token,
       data,
       notification: {
-        title: notification_title,
-        body: notification_content,
+        title: notification.title,
+        body: notification.body,
       },
     };
 
@@ -130,11 +132,9 @@ export class FcmService {
       //
       _common,
       _img,
-      _tag,
+      _uid,
       _mutable,
     );
-
-    console.log(message);
 
     try {
       const response = await admin.messaging().send(message);
