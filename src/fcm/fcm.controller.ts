@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Controller, Get, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { FcmService } from './fcm.service';
 import * as admin from 'firebase-admin';
 import { randomInt } from 'node:crypto';
@@ -8,25 +8,12 @@ import { randomInt } from 'node:crypto';
 export class FcmController {
   constructor(private readonly fcmService: FcmService) {}
 
-  @Get('subscribe')
-  async subscribeToTopic(
-    @Query('tokens') tokens: string, // Comma-separated tokens
-    @Query('topic') topic: string,
-  ) {
-    const tokenArray = tokens.split(','); // Convert comma-separated tokens into an array
-    await this.fcmService.subscribeToTopic(tokenArray, topic);
-    return { message: `Subscribed to topic ${topic}` };
-  }
-
-  @Get('unsubscribe')
-  async unsubscribeFromTopic(
-    @Query('tokens') tokens: string, // Comma-separated tokens
-    @Query('topic') topic: string,
-  ) {
-    const tokenArray = tokens.split(','); // Convert comma-separated tokens into an array
-    await this.fcmService.unsubscribeFromTopic(tokenArray, topic);
-    return { message: `Unsubscribed from topic ${topic}` };
-  }
+  EXAMPLE_IMAGE_URL_JPG =
+    'https://vetching-public-storage-dev.s3.ap-northeast-2.amazonaws.com/test/Object_Speaker.jpg';
+  EXAMPLE_IMAGE_URL_PNG =
+    'https://vetching-public-storage-dev.s3.ap-northeast-2.amazonaws.com/test/Object_Camera.png';
+  EXAMPLE_IMAGE_URL_PIC_SUM =
+    'https://fastly.picsum.photos/id/1075/200/300.jpg?hmac=pffU5_mFDClpUhsTVng81yHXXvdsGGKHi1jCz2pRsaU';
 
   getRandomInt(max) {
     return Math.floor(Math.random() * max);
@@ -40,6 +27,39 @@ export class FcmController {
       result += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     return result;
+  }
+
+  @Post('send/token')
+  async sendToToken(@Body() body: SendMessageTokenDto) {
+    const { token, notification, uid, data } = body;
+    return await this.fcmService.sendMessage({
+      token,
+      notification,
+      uid,
+      data,
+    });
+  }
+
+  @Post('send/topic')
+  async sendToTopic(@Body() body: SendMessageTopicDto) {
+    const { topic, notification, uid, data } = body;
+    return await this.fcmService.sendMessage({
+      topic,
+      notification,
+      uid,
+      data,
+    });
+  }
+
+  @Post('send/condition')
+  async sendToCondition(@Body() body: SendMessageConditionDto) {
+    const { condition, notification, uid, data } = body;
+    return await this.fcmService.sendMessage({
+      condition,
+      notification,
+      uid,
+      data,
+    });
   }
 
   @Get('send-to-device')
@@ -68,5 +88,25 @@ export class FcmController {
     });
 
     return { message: `Message sent to device token ${token}` };
+  }
+
+  @Get('subscribe')
+  async subscribeToTopic(
+    @Query('tokens') tokens: string, // Comma-separated tokens
+    @Query('topic') topic: string,
+  ) {
+    const tokenArray = tokens.split(','); // Convert comma-separated tokens into an array
+    await this.fcmService.subscribeToTopic(tokenArray, topic);
+    return { message: `Subscribed to topic ${topic}` };
+  }
+
+  @Get('unsubscribe')
+  async unsubscribeFromTopic(
+    @Query('tokens') tokens: string, // Comma-separated tokens
+    @Query('topic') topic: string,
+  ) {
+    const tokenArray = tokens.split(','); // Convert comma-separated tokens into an array
+    await this.fcmService.unsubscribeFromTopic(tokenArray, topic);
+    return { message: `Unsubscribed from topic ${topic}` };
   }
 }

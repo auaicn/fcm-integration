@@ -6,37 +6,30 @@ import * as admin from 'firebase-admin';
 export class MessageBuilder {
   private message: Partial<admin.messaging.Message> = {};
 
+  constructor() {
+    this.setCommonFields();
+  }
+
   setToken(token: string): this {
     _.merge(this.message, { token });
+
     return this;
   }
 
-  setData(data?: { [key: string]: string }): this {
-    if (data) {
-      _.merge(this.message, { data });
-    }
+  setTopic(topic: string): this {
+    _.merge(this.message, { topic });
+
     return this;
   }
 
-  setNotification(notification?: {
-    title?: string;
-    body?: string;
-    imageUrl?: string;
-  }): this {
-    if (notification) {
-      _.merge(this.message, {
-        notification: {
-          title: notification.title,
-          body: notification.body,
-          ...(notification.imageUrl ? { imageUrl: notification.imageUrl } : {}),
-        },
-      });
-    }
+  setCondition(condition: string): this {
+    _.merge(this.message, { condition });
+
     return this;
   }
 
-  setAndroidOptions(uid?: string): this {
-    const androidOptions = {
+  private setCommonFields(): this {
+    const common = {
       android: {
         priority: 'high',
         ttl: 0,
@@ -49,30 +42,72 @@ export class MessageBuilder {
           clickAction: 'chatroom-open',
           channelId: 'chat',
           eventTimestamp: new Date(),
-          ...(uid ? { tag: uid } : {}),
         },
       },
-    };
-
-    _.merge(this.message, androidOptions);
-    return this;
-  }
-
-  setApnsOptions(uid?: string, imageUrl?: string): this {
-    const apnsOptions = {
       apns: {
         headers: {
           'apns-priority': '10',
-          ...(uid ? { 'apns-collapse-id': uid } : {}),
-          ...(imageUrl ? { 'mutable-content': '1' } : {}),
-        },
-        payload: {
-          aps: {},
         },
       },
     };
 
-    _.merge(this.message, apnsOptions);
+    this.message = _.merge(this.message, common);
+
+    return this;
+  }
+
+  setImage(imageUrl?: string): this {
+    if (!imageUrl) return this;
+
+    this.message = _.merge(this.message, {
+      notification: { imageUrl },
+      apns: {
+        headers: {
+          'mutable-content': '1',
+        },
+      },
+    });
+
+    return this;
+  }
+
+  setUid(uid?: string): this {
+    if (!uid) return this;
+
+    this.message = _.merge(this.message, {
+      android: {
+        notification: {
+          tag: uid,
+        },
+      },
+      apns: {
+        headers: {
+          'apns-collapse-id': uid,
+        },
+      },
+    });
+
+    return this;
+  }
+
+  setData(data?: { [key: string]: string }): this {
+    if (!data) return this;
+
+    this.message = _.merge(this.message, { data });
+
+    return this;
+  }
+
+  setNotification(notification?: { title?: string; body?: string }): this {
+    if (!notification) return this;
+
+    this.message = _.merge(this.message, {
+      notification: {
+        title: notification.title,
+        body: notification.body,
+      },
+    });
+
     return this;
   }
 
