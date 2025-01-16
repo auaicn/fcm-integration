@@ -11,8 +11,8 @@ import {
 export class FcmController {
   constructor(private readonly fcmService: FcmService) {}
 
-  @Post('send/token')
-  async sendToToken(@Body() body: SendMessageTokenDto) {
+  @Post('token/send')
+  async token$send(@Body() body: SendMessageTokenDto) {
     const { token, notification, uid, data } = body;
     return await this.fcmService.send({
       token,
@@ -22,7 +22,21 @@ export class FcmController {
     });
   }
 
-  @Post('send/topic')
+  @Post('token/sendEach')
+  async token$sendEach(@Body() body: SendMessageTokenDto[]) {
+    return await Promise.all(
+      body.map(({ token, notification, uid, data }) =>
+        this.fcmService.send({
+          token,
+          notification,
+          uid,
+          data,
+        }),
+      ),
+    );
+  }
+
+  @Post('topic/send')
   async sendToTopic(@Body() body: SendMessageTopicDto) {
     const { topic, notification, uid, data } = body;
     return await this.fcmService.send({
@@ -33,8 +47,22 @@ export class FcmController {
     });
   }
 
-  @Post('send/condition')
-  async sendToCondition(@Body() body: SendMessageConditionDto) {
+  @Post('topic/sendEach')
+  async topic$sendEach(@Body() body: SendMessageTopicDto[]) {
+    return await Promise.all(
+      body.map(({ topic, notification, uid, data }) =>
+        this.fcmService.send({
+          topic,
+          notification,
+          uid,
+          data,
+        }),
+      ),
+    );
+  }
+
+  @Post('topic_condition/send')
+  async topic_condition$send(@Body() body: SendMessageConditionDto) {
     const { condition, notification, uid, data } = body;
     return await this.fcmService.send({
       condition,
@@ -42,6 +70,20 @@ export class FcmController {
       uid,
       data,
     });
+  }
+
+  @Post('topic_condition/sendEach')
+  async topic_condition$sendEach(@Body() body: SendMessageConditionDto[]) {
+    return await Promise.all(
+      body.map(({ condition, notification, uid, data }) =>
+        this.fcmService.send({
+          condition,
+          notification,
+          uid,
+          data,
+        }),
+      ),
+    );
   }
 
   @Get('subscribe')
