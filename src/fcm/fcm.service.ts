@@ -41,9 +41,11 @@ export class FcmService {
         .setNotification(messageDto.notification)
         .setUid(messageDto.uid)
         .setSound(true)
-        .setImage(messageDto.notification.imageUrl);
+        .setImage(messageDto.notification?.imageUrl);
 
       const message = messageBuilder.build();
+
+      console.log(message);
 
       const response = await admin.messaging().send(message);
       return { success: true, response };
