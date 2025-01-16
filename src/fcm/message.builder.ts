@@ -89,6 +89,10 @@ export class MessageBuilder {
           'apns-collapse-id': uid,
         },
       },
+      data: {
+        // client 에도 전달하기 위함
+        uid: uid,
+      },
     };
 
     this.message = _.merge(this.message, fields);
