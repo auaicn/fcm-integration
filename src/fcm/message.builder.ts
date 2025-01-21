@@ -124,20 +124,20 @@ export class MessageBuilder {
     return this;
   }
 
-  setSound(useSound: boolean = false): this {
-    if (!useSound) return this;
+  setSound(sound?: string): this {
+    if (!sound) return this;
 
     const fields: Partial<admin.messaging.Message> = {
       apns: {
         payload: {
           aps: {
-            sound: 'default',
+            sound,
           },
         },
       },
       android: {
         notification: {
-          sound: 'default',
+          sound,
         },
       },
     };

@@ -40,7 +40,7 @@ export class FcmService {
         .setData(messageDto.data)
         .setNotification(messageDto.notification)
         .setUid(messageDto.uid)
-        .setSound(true)
+        .setSound(messageDto.sound)
         .setImage(messageDto.notification?.imageUrl);
 
       const message = messageBuilder.build();

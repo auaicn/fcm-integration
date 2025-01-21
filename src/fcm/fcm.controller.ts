@@ -13,24 +13,26 @@ export class FcmController {
 
   @Post('token/send')
   async token$send(@Body() body: SendMessageTokenDto) {
-    const { token, notification, uid, data } = body;
+    const { token, notification, uid, data, sound } = body;
     return await this.fcmService.send({
       token,
       notification,
       uid,
       data,
+      sound,
     });
   }
 
   @Post('token/sendEach')
   async token$sendEach(@Body() body: SendMessageTokenDto[]) {
     return await Promise.all(
-      body.map(({ token, notification, uid, data }) =>
+      body.map(({ token, notification, uid, data, sound }) =>
         this.fcmService.send({
           token,
           notification,
           uid,
           data,
+          sound,
         }),
       ),
     );
@@ -38,24 +40,26 @@ export class FcmController {
 
   @Post('topic/send')
   async sendToTopic(@Body() body: SendMessageTopicDto) {
-    const { topic, notification, uid, data } = body;
+    const { topic, notification, uid, data, sound } = body;
     return await this.fcmService.send({
       topic,
       notification,
       uid,
       data,
+      sound,
     });
   }
 
   @Post('topic/sendEach')
   async topic$sendEach(@Body() body: SendMessageTopicDto[]) {
     return await Promise.all(
-      body.map(({ topic, notification, uid, data }) =>
+      body.map(({ topic, notification, uid, data, sound }) =>
         this.fcmService.send({
           topic,
           notification,
           uid,
           data,
+          sound,
         }),
       ),
     );
@@ -63,24 +67,26 @@ export class FcmController {
 
   @Post('topic_condition/send')
   async topic_condition$send(@Body() body: SendMessageConditionDto) {
-    const { condition, notification, uid, data } = body;
+    const { condition, notification, uid, data, sound } = body;
     return await this.fcmService.send({
       condition,
       notification,
       uid,
       data,
+      sound,
     });
   }
 
   @Post('topic_condition/sendEach')
   async topic_condition$sendEach(@Body() body: SendMessageConditionDto[]) {
     return await Promise.all(
-      body.map(({ condition, notification, uid, data }) =>
+      body.map(({ condition, notification, uid, data, sound }) =>
         this.fcmService.send({
           condition,
           notification,
           uid,
           data,
+          sound,
         }),
       ),
     );

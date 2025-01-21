@@ -10,6 +10,9 @@ class BaseMessageDto {
   };
 
   @IsOptional()
+  sound?: 'sound_1.mp3';
+
+  @IsOptional()
   @IsString()
   uid?: string;
 
