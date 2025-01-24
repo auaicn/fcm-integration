@@ -6,6 +6,9 @@ export class BgLogController {
   async log(@Body() body: { message: string }) {
     console.log(body.message);
 
-    return { message: 'Request logged successfully' };
+    return {
+      statusCode: 200,
+      message: 'Request logged successfully',
+    };
   }
 }
