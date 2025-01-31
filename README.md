@@ -15,3 +15,20 @@ firebase 세팅
 세팅 후 메시징 관리
 - 3가지 메시지 유형 관리용 클래스 [fcm.dto.ts](src/fcm.dto.ts)
 - 메시지를 만드는 builder 클래스 [message.builder.ts](src/fcm/message.builder.ts)
+
+### 백그라운드 실행
+
+1. 실행 방법
+    ```
+    pm2 start npm --name "fcm" -- run start:dev
+    ```
+
+2. 로그 확인
+    ```
+    pm2 logs fcm
+    ```
+
+3. 중지
+    ```
+    pm2 stop fcm
+    ```
