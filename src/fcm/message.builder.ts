@@ -132,6 +132,7 @@ export class MessageBuilder {
         payload: {
           aps: {
             sound,
+            contentAvailable: true,
           },
         },
       },
